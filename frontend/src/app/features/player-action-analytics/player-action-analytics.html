@@ -1,0 +1,223 @@
+<div class="analytics-page">
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <span class="page-eyebrow">Review Player Module</span>
+      <h1 class="page-title">Player Review</h1>
+      <p class="page-subtitle">Style profile, action distribution, discipline risk, and tactical fit from saved player-action detections.</p>
+    </div>
+    <div class="status-badge" [class.active]="hasData">
+      <div class="pulse-dot"></div>
+      <span>{{ hasData ? 'Data Available' : 'No Data' }}</span>
+    </div>
+  </div>
+
+  <div class="history-control">
+    <div>
+      <label for="playerActionHistory">Saved Review Source</label>
+      <p>Select a completed player-action session or review every saved profile together.</p>
+    </div>
+    <select
+      id="playerActionHistory"
+      [ngModel]="selectedHistoryJobId"
+      (ngModelChange)="onHistorySelect($event)"
+      [disabled]="loadingHistory"
+    >
+      <option value="">All saved player reviews</option>
+      <option *ngFor="let session of historySessions" [value]="session.id">{{ sessionLabel(session) }}</option>
+    </select>
+  </div>
+
+  <div class="history-selected" *ngIf="selectedHistoryJobId && selectedHistoryTitle">
+    Showing saved review for {{ selectedHistoryTitle }}
+  </div>
+
+  <!-- No Data State -->
+  <div class="empty-state" *ngIf="!hasData">
+    <div class="empty-icon">PR</div>
+    <h3>No Player Review Available</h3>
+    <p>Run <strong>Player Action Detection</strong> to generate a saved player review.</p>
+    <p class="empty-hint">Detected actions are converted into passing style, threat, set-piece, risk, and team-fit signals.</p>
+  </div>
+
+  <!-- Stats Content -->
+  <ng-container *ngIf="hasData">
+
+    <section class="report-hero" *ngIf="playerProfile as profile">
+      <div class="hero-copy">
+        <span class="hero-eyebrow">Estimated Playing Profile</span>
+        <h3>{{ profile.main_style }}</h3>
+        <p>{{ profile.explanation }}</p>
+      </div>
+      <div class="hero-metrics">
+        <div>
+          <span>Total Actions</span>
+          <strong>{{ totalActions }}</strong>
+        </div>
+        <div>
+          <span>Action Types</span>
+          <strong>{{ uniqueActionCount }}</strong>
+        </div>
+        <div>
+          <span>Clips</span>
+          <strong>{{ videosProcessed }}</strong>
+        </div>
+      </div>
+    </section>
+
+    <!-- Review Player Profile -->
+    <div class="review-summary-grid" *ngIf="playerProfile as profile">
+      <div class="review-summary-card primary">
+        <span class="summary-label">Main Style</span>
+        <strong>{{ profile.main_style }}</strong>
+        <span>{{ profile.passing_profile }}</span>
+      </div>
+      <div class="review-summary-card" *ngIf="attackingThreat as threat">
+        <span class="summary-label">Attacking Threat</span>
+        <strong>{{ formatCount(threat.score) }}</strong>
+        <span>Estimated clip score</span>
+      </div>
+      <div class="review-summary-card" *ngIf="disciplineRisk as risk">
+        <span class="summary-label">Discipline Risk</span>
+        <strong [class.risk-high]="risk.risk_level === 'High'">{{ risk.risk_level }}</strong>
+        <span>{{ risk.foul_count }} fouls - score {{ risk.discipline_risk_score }}</span>
+      </div>
+      <div class="review-summary-card" *ngIf="profileReliability as reliability">
+        <span class="summary-label">Reliability</span>
+        <strong>{{ reliability.profile_reliability }}</strong>
+        <span>{{ reliability.reason }}</span>
+      </div>
+    </div>
+
+    <div class="overview-card" *ngIf="passingStyle as passing">
+      <div class="section-header">
+        <div class="section-accent"></div>
+        <h3>Passing Style</h3>
+      </div>
+      <div class="profile-body">
+        <div class="profile-copy">
+          <h4>{{ passing.passing_profile }}</h4>
+          <p>{{ passing.explanation }}</p>
+        </div>
+        <div class="passing-bars">
+          <div class="passing-bar">
+            <div class="passing-bar-head">
+              <span>Short passes</span>
+              <strong>{{ passing.short_pass_count }} - {{ percentValue(passing.short_pass_ratio) }}%</strong>
+            </div>
+            <div class="meter"><span [style.width.%]="percentValue(passing.short_pass_ratio)"></span></div>
+          </div>
+          <div class="passing-bar">
+            <div class="passing-bar-head">
+              <span>Long passes</span>
+              <strong>{{ passing.long_pass_count }} - {{ percentValue(passing.long_pass_ratio) }}%</strong>
+            </div>
+            <div class="meter purple"><span [style.width.%]="percentValue(passing.long_pass_ratio)"></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="overview-card" *ngIf="setPieceSummary as setPiece">
+      <div class="section-header">
+        <div class="section-accent"></div>
+        <h3>Set Piece Summary</h3>
+      </div>
+      <div class="mini-stat-grid compact">
+        <div class="mini-stat">
+          <span>Set Pieces</span>
+          <strong>{{ setPiece.set_piece_count }}</strong>
+          <small>{{ percentValue(setPiece.set_piece_ratio) }}% of clips</small>
+        </div>
+        <div class="mini-stat"><span>Corners</span><strong>{{ setPiece.corner }}</strong></div>
+        <div class="mini-stat"><span>Free Kicks</span><strong>{{ setPiece.freekick }}</strong></div>
+        <div class="mini-stat"><span>Penalties</span><strong>{{ setPiece.penalty }}</strong></div>
+        <div class="mini-stat"><span>Throw-ins</span><strong>{{ setPiece['throw-in'] }}</strong></div>
+        <div class="mini-stat"><span>Goal Kicks</span><strong>{{ setPiece.goalkick }}</strong></div>
+      </div>
+    </div>
+
+    <div class="overview-card" *ngIf="playerProfile as profile">
+      <div class="section-header">
+        <div class="section-accent"></div>
+        <h3>Playing Style Profile</h3>
+      </div>
+      <div class="profile-body style-profile-body">
+        <div class="style-profile-layout">
+          <div class="style-card primary-style-card">
+            <span class="style-role">Primary style</span>
+            <h4>{{ profile.main_style }}</h4>
+            <p>{{ primaryStyleSummary(profile.main_style) }}</p>
+          </div>
+
+          <div class="secondary-style-list" *ngIf="profile.secondary_styles.length">
+            <span class="style-role muted">Secondary styles</span>
+            <div class="secondary-style-grid">
+              <div class="style-card secondary-style-card" *ngFor="let style of profile.secondary_styles">
+                <h5>{{ style }}</h5>
+                <p>{{ secondaryStyleSummary(style) }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <small class="profile-note">{{ profile.limitations_note }}</small>
+      </div>
+    </div>
+
+    <div class="overview-card" *ngIf="suitableTeamStyles as fit">
+      <div class="section-header">
+        <div class="section-accent"></div>
+        <h3>Suitable Team Styles</h3>
+      </div>
+      <div class="team-fit-body">
+        <p>{{ fit.reason }}</p>
+        <div class="team-style-groups">
+          <div
+            class="team-style-group"
+            *ngFor="let group of teamStyleGroups(fit)"
+            [class.primary-fit]="group.tone === 'main'"
+            [class.secondary-fit]="group.tone === 'supporting'"
+            [class.risk-fit]="group.tone === 'risk'"
+          >
+            <span>{{ group.label }}</span>
+            <h4>{{ group.title }}</h4>
+            <div class="team-style-list">
+              <span *ngFor="let style of group.styles" class="team-style-chip">{{ style }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="overview-card">
+
+      <!-- Section Header -->
+      <div class="section-header">
+        <div class="section-accent"></div>
+        <h3>Action Distribution</h3>
+      </div>
+
+      <!-- Stats List -->
+      <div class="stats-list">
+        <div *ngFor="let stat of actionStats" class="stat-row">
+          <div class="stat-values">
+            <span class="stat-value left dominant">{{ stat.count }}</span>
+            <span class="stat-label">{{ stat.label | uppercase }}</span>
+            <span class="stat-share">{{ getPercent(stat.count) }}%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="confidence-footnote" *ngIf="averageConfidenceText">
+      Average confidence: {{ averageConfidenceText }}
+    </p>
+
+    <!-- Clear Data -->
+    <div class="clear-section">
+      <button class="clear-btn" (click)="clearStats()">Clear Stats Data</button>
+    </div>
+
+  </ng-container>
+</div>

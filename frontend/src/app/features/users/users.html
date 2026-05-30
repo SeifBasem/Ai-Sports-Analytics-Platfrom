@@ -1,0 +1,83 @@
+<div class="space-y-5">
+  <div *ngIf="notice" class="flex items-center justify-between gap-3 rounded-xl border border-cyan-500/30 bg-cyan-500/10 px-4 py-3 text-sm font-medium text-cyan-300">
+    <span>{{ notice }}</span>
+    <button type="button" class="rounded-md p-1 hover:bg-cyan-500/20" title="Dismiss" (click)="closeNotice()">
+      <lucide-icon name="x" size="16" strokeWidth="2"></lucide-icon>
+    </button>
+  </div>
+
+  <app-data-table
+    [columns]="columns"
+    [rows]="rows"
+    [actions]="actions"
+    emptyMessage="No users found."
+    (actionSelected)="handleAction($event)"
+  ></app-data-table>
+</div>
+
+<app-modal [isOpen]="selectedUser !== null" title="User details" (closed)="selectedUser = null">
+  <div *ngIf="selectedUser as user" class="space-y-4">
+    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <div class="rounded-xl border border-gray-800/70 bg-gray-800/35 p-3">
+        <p class="text-xs font-semibold uppercase text-gray-400">Id</p>
+        <p class="mt-1 font-semibold text-white">{{ user.id }}</p>
+      </div>
+      <div class="rounded-xl border border-gray-800/70 bg-gray-800/35 p-3">
+        <p class="text-xs font-semibold uppercase text-gray-400">Created At</p>
+        <p class="mt-1 font-semibold text-white">{{ user.createdAt }}</p>
+      </div>
+    </div>
+    <div>
+      <p class="text-sm font-semibold text-gray-400">Full Name</p>
+      <p class="mt-1 text-lg font-semibold text-white">{{ user.fullName }}</p>
+    </div>
+    <div>
+      <p class="text-sm font-semibold text-gray-400">Email</p>
+      <p class="mt-1 text-gray-300">{{ user.email }}</p>
+    </div>
+    <div class="flex flex-wrap gap-2">
+      <app-status-badge [status]="user.role"></app-status-badge>
+      <app-status-badge [status]="user.status"></app-status-badge>
+    </div>
+  </div>
+</app-modal>
+
+<app-modal [isOpen]="editingUser !== null" title="Edit user" (closed)="editingUser = null">
+  <form *ngIf="editingUser as user" class="space-y-4" (ngSubmit)="saveUser()">
+    <label class="block">
+      <span class="text-sm font-semibold text-gray-300">Full Name</span>
+      <input type="text" name="fullName" [(ngModel)]="user.fullName" class="mt-2 w-full rounded-xl border border-gray-700 bg-gray-800/70 px-3 py-2 text-sm text-white outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" required />
+    </label>
+
+    <label class="block">
+      <span class="text-sm font-semibold text-gray-300">Email</span>
+      <input type="email" name="email" [(ngModel)]="user.email" class="mt-2 w-full rounded-xl border border-gray-700 bg-gray-800/70 px-3 py-2 text-sm text-white outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" required />
+    </label>
+
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <label class="block">
+        <span class="text-sm font-semibold text-gray-300">Role</span>
+        <select name="role" [(ngModel)]="user.role" class="mt-2 w-full rounded-xl border border-gray-700 bg-gray-800/70 px-3 py-2 text-sm text-white outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20">
+          <option value="Admin">Admin</option>
+          <option value="User">User</option>
+        </select>
+      </label>
+
+      <label class="block">
+        <span class="text-sm font-semibold text-gray-300">Status</span>
+        <select name="status" [(ngModel)]="user.status" class="mt-2 w-full rounded-xl border border-gray-700 bg-gray-800/70 px-3 py-2 text-sm text-white outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20">
+          <option value="Active">Active</option>
+          <option value="Inactive">Inactive</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="flex justify-end gap-2 pt-2">
+      <button type="button" class="rounded-xl border border-gray-700 px-4 py-2 text-sm font-semibold text-gray-300 hover:bg-gray-800" (click)="editingUser = null">Cancel</button>
+      <button type="submit" class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-green-500 px-4 py-2 text-sm font-semibold text-white hover:from-blue-600 hover:to-green-600">
+        <lucide-icon name="check-circle-2" size="16" strokeWidth="2"></lucide-icon>
+        Save
+      </button>
+    </div>
+  </form>
+</app-modal>

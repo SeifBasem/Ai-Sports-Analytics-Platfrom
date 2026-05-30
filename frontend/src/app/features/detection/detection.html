@@ -1,0 +1,53 @@
+<div class="detection-page">
+  <div class="page-header">
+    <div>
+      <span class="page-eyebrow">Detection tools</span>
+      <h1>🎯 Players Tracking</h1>
+    </div>
+    <span class="api-badge" [class.ok]="apiStatus==='ok'" [class.down]="apiStatus==='down'">
+      API {{ apiStatus === 'ok' ? '● Online' : apiStatus === 'down' ? '● Offline' : '● Checking…' }}
+    </span>
+  </div>
+
+  <!-- Upload area -->
+  <div class="upload-box" (click)="fileInput.click()" [class.has-preview]="previewUrl">
+    <input #fileInput type="file" accept="image/*" hidden (change)="onFileSelected($event)" />
+    <ng-container *ngIf="!previewUrl">
+      <span class="upload-icon">📁</span>
+      <p>Click to upload an image</p>
+    </ng-container>
+    <img *ngIf="previewUrl" [src]="previewUrl" alt="Preview" class="preview-img" />
+  </div>
+
+  <button class="detect-btn" [disabled]="!selectedFile || loading" (click)="detect()">
+    <span *ngIf="!loading">🔍 Run Detection</span>
+    <span *ngIf="loading" class="spinner">⏳ Detecting…</span>
+  </button>
+
+  <!-- Error -->
+  <div class="error-msg" *ngIf="error">⚠️ {{ error }}</div>
+
+  <!-- Results -->
+  <div class="results" *ngIf="annotatedUrl">
+    <div class="result-image-wrap">
+      <h2>Result — {{ count }} detection{{ count !== 1 ? 's' : '' }}</h2>
+      <img [src]="annotatedUrl" alt="Annotated" class="result-img" />
+    </div>
+
+    <div class="detections-table" *ngIf="detections.length">
+      <table>
+        <thead>
+          <tr><th>#</th><th>Label</th><th>Confidence</th><th>Box (x1,y1,x2,y2)</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let d of detections; let i = index">
+            <td>{{ i + 1 }}</td>
+            <td><span class="label-chip">{{ d.label }}</span></td>
+            <td>{{ (d.confidence * 100).toFixed(1) }}%</td>
+            <td>{{ d.box.x1 }}, {{ d.box.y1 }}, {{ d.box.x2 }}, {{ d.box.y2 }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

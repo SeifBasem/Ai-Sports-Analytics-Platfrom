@@ -1,0 +1,17 @@
+flask
+flask-cors
+ultralytics
+pillow
+opencv-python
+supervision
+scipy
+numpy
+pandas
+git+https://github.com/roboflow/sports.git
+torch
+torchvision
+keras
+jax
+jaxlib
+h5py
+imageio-ffmpeg

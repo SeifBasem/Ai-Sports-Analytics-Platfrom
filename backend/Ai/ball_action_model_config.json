@@ -1,0 +1,45 @@
+{
+  "UrlLocal": "match",
+  "range": {
+    "halves": [1],
+    "start_ms": 0,
+    "end_ms": 0,
+    "start_frame": 0,
+    "end_frame": 0
+  },
+  "classes": [
+    "PASS_left",
+    "PASS_right",
+    "DRIVE_left",
+    "DRIVE_right",
+    "HIGH PASS_left",
+    "HIGH PASS_right",
+    "HEADER_left",
+    "HEADER_right",
+    "OUT_left",
+    "OUT_right",
+    "THROW IN_left",
+    "THROW IN_right"
+  ],
+  "input": {
+    "num_frames": 15,
+    "frame_step": 2,
+    "image_height": 736,
+    "image_width": 1280,
+    "predict_stride_frames": 1,
+    "batch_size": 4
+  },
+  "postprocess": {
+    "gauss_sigma": 3.0,
+    "height": 0.2,
+    "distance_frames": 15
+  },
+  "analytics_labels": [
+    "HIGH PASS",
+    "HEADER",
+    "OUT",
+    "THROW IN"
+  ],
+  "rule": "Only one prediction per same second per half. Keep highest confidence.",
+  "predictions": []
+}

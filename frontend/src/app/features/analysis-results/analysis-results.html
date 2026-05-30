@@ -1,0 +1,63 @@
+<div class="grid grid-cols-1 gap-5 xl:grid-cols-2">
+  <article *ngFor="let result of results; trackBy: trackByResultId" class="rounded-2xl border border-gray-800/50 bg-gray-900/50 p-6 shadow-sm backdrop-blur-xl">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <div>
+        <p class="text-sm font-semibold text-gray-400">{{ result.id }} · {{ result.createdAt }}</p>
+        <h2 class="mt-2 text-xl font-bold text-white">{{ result.videoTitle }}</h2>
+      </div>
+      <div class="rounded-xl border border-purple-500/30 bg-purple-500/10 px-3 py-2 text-center text-purple-300">
+        <p class="text-xs font-semibold uppercase">Confidence</p>
+        <p class="text-lg font-semibold">{{ result.confidenceScore }}%</p>
+      </div>
+    </div>
+
+    <div class="mt-5 space-y-4">
+      <div>
+        <p class="text-sm font-semibold text-gray-400">Detected Sport / Action</p>
+        <p class="mt-1 font-semibold text-white">{{ result.detectedSportAction }}</p>
+      </div>
+
+      <p class="leading-7 text-gray-300">{{ result.resultSummary }}</p>
+
+      <div class="h-2 overflow-hidden rounded-full bg-gray-800">
+        <div class="h-full rounded-full bg-teal-600" [style.width.%]="result.confidenceScore"></div>
+      </div>
+
+      <div>
+        <p class="text-sm font-semibold text-gray-400">Recommendations</p>
+        <p class="mt-1 leading-7 text-gray-300">{{ result.recommendations }}</p>
+      </div>
+
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <h3 class="text-sm font-semibold text-white">Detected actions timeline</h3>
+          <button type="button" class="inline-flex items-center gap-1.5 rounded-xl border border-gray-700/70 bg-gray-800/40 px-3 py-1.5 text-xs font-semibold text-gray-300 hover:bg-gray-800/70 hover:text-white" title="View JSON" (click)="selectedResult = result">
+            <lucide-icon name="braces" size="15" strokeWidth="2"></lucide-icon>
+            JSON
+          </button>
+        </div>
+
+        <div class="space-y-3">
+          <div *ngFor="let action of result.detectedActions" class="grid grid-cols-[64px_1fr_56px] items-center gap-3">
+            <span class="rounded-lg bg-gray-800 px-2 py-1 text-center text-xs font-semibold text-gray-300">{{ action.timestamp }}</span>
+            <div class="min-w-0">
+              <p class="truncate text-sm font-semibold text-white">{{ action.action }}</p>
+              <div class="mt-1 h-1.5 overflow-hidden rounded-full bg-gray-800">
+                <div class="h-full rounded-full bg-emerald-500" [style.width.%]="action.confidence"></div>
+              </div>
+            </div>
+            <span class="text-right text-sm font-semibold text-gray-300">{{ action.confidence }}%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </article>
+
+  <div *ngIf="results.length === 0" class="rounded-2xl border border-gray-800/50 bg-gray-900/50 p-10 text-center text-sm text-gray-400 xl:col-span-2">
+    No completed analysis results found.
+  </div>
+</div>
+
+<app-modal [isOpen]="selectedResult !== null" title="Detected actions JSON" size="lg" (closed)="selectedResult = null">
+  <pre *ngIf="selectedResult as result" class="overflow-auto rounded-lg bg-slate-950 p-4 text-sm leading-6 text-slate-100">{{ detectedActionsJson(result) }}</pre>
+</app-modal>

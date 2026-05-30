@@ -1,0 +1,35 @@
+<div class="space-y-6">
+  <section class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+    <app-stat-card
+      *ngFor="let card of statCards"
+      [label]="card.label"
+      [value]="card.value"
+      [icon]="card.icon"
+      [accent]="card.accent"
+    ></app-stat-card>
+  </section>
+
+  <section class="space-y-3">
+    <div class="flex items-center justify-between gap-3">
+      <h2 class="text-xl font-bold text-white">Recent uploaded videos</h2>
+      <span class="text-sm font-medium text-gray-400">{{ recentVideoRows.length }} shown</span>
+    </div>
+    <app-data-table
+      [columns]="recentVideoColumns"
+      [rows]="recentVideoRows"
+      emptyMessage="No videos uploaded yet."
+    ></app-data-table>
+  </section>
+
+  <section class="space-y-3">
+    <div class="flex items-center justify-between gap-3">
+      <h2 class="text-xl font-bold text-white">Recent analysis requests</h2>
+      <span class="text-sm font-medium text-gray-400">{{ recentRequestRows.length }} shown</span>
+    </div>
+    <app-data-table
+      [columns]="recentRequestColumns"
+      [rows]="recentRequestRows"
+      emptyMessage="No analysis requests yet."
+    ></app-data-table>
+  </section>
+</div>

@@ -1,0 +1,254 @@
+:host {
+  display: block;
+}
+
+.settings-page {
+  color: #f8fafc;
+}
+
+.settings-hero,
+.profile-chip,
+.panel-header,
+.session-card,
+.settings-actions {
+  align-items: center;
+  display: flex;
+}
+
+.settings-hero {
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 28px;
+
+  h2 {
+    color: #fff;
+    font-size: 36px;
+    font-weight: 800;
+    margin: 6px 0 10px;
+  }
+}
+
+.eyebrow {
+  color: #22d3ee;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.hero-copy,
+.muted,
+.session-card p,
+.profile-chip span {
+  color: #9ca3af;
+}
+
+.profile-chip,
+.settings-panel {
+  background: rgba(17, 24, 39, .56);
+  border: 1px solid rgba(31, 41, 55, .74);
+  border-radius: 8px;
+}
+
+.profile-chip {
+  gap: 12px;
+  padding: 12px 14px;
+}
+
+.avatar {
+  align-items: center;
+  background: linear-gradient(135deg, #3b82f6, #22c55e);
+  border-radius: 999px;
+  color: #fff;
+  display: flex;
+  font-weight: 800;
+  height: 48px;
+  justify-content: center;
+  width: 48px;
+}
+
+.settings-grid,
+.form-grid {
+  display: grid;
+}
+
+.settings-grid {
+  gap: 20px;
+  grid-template-columns: minmax(0, 1.3fr) minmax(300px, .7fr);
+}
+
+.settings-panel {
+  padding: 24px;
+}
+
+.error-banner {
+  background: rgba(239, 68, 68, .1);
+  border: 1px solid rgba(239, 68, 68, .25);
+  border-radius: 8px;
+  color: #fca5a5;
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 18px;
+  padding: 12px 14px;
+}
+
+.profile-panel,
+.security-panel {
+  grid-column: span 2;
+}
+
+.panel-header {
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+
+  h3 {
+    color: #fff;
+    font-size: 20px;
+    font-weight: 800;
+  }
+}
+
+.form-grid {
+  gap: 18px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+label {
+  color: #d1d5db;
+  display: grid;
+  font-size: 14px;
+  font-weight: 700;
+  gap: 9px;
+}
+
+.wide {
+  grid-column: span 2;
+}
+
+input[type='text'],
+input[type='email'],
+select,
+.theme-segment {
+  background: rgba(31, 41, 55, .62);
+  border: 1px solid rgba(55, 65, 81, .9);
+  border-radius: 8px;
+  color: #fff;
+  min-height: 46px;
+}
+
+input[type='text'],
+input[type='email'],
+select {
+  outline: none;
+  padding-inline: 14px;
+}
+
+input:disabled,
+button:disabled {
+  cursor: not-allowed;
+  opacity: .62;
+}
+
+.theme-segment {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  margin-bottom: 14px;
+  padding: 5px;
+
+  button {
+    border-radius: 6px;
+    color: #9ca3af;
+    font-weight: 800;
+    min-height: 40px;
+  }
+
+  .active {
+    background: linear-gradient(135deg, #3b82f6, #22c55e);
+    color: #fff;
+  }
+}
+
+.session-card {
+  background: linear-gradient(135deg, rgba(59, 130, 246, .1), rgba(34, 197, 94, .08));
+  border: 1px solid rgba(59, 130, 246, .24);
+  border-radius: 8px;
+  justify-content: space-between;
+  margin-top: 18px;
+  padding: 18px;
+
+  strong {
+    color: #fff;
+  }
+}
+
+.settings-actions {
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 22px;
+}
+
+:host-context(.light-theme) {
+  .settings-page,
+  .settings-hero h2,
+  .panel-header h3,
+  .session-card strong {
+    color: #0f172a;
+  }
+
+  .profile-chip,
+  .settings-panel {
+    background: rgba(255, 255, 255, .86);
+    border-color: rgba(203, 213, 225, .95);
+  }
+
+  .error-banner {
+    background: #fff1f2;
+    border-color: #fecdd3;
+    color: #be123c;
+  }
+
+  label {
+    color: #334155;
+  }
+
+  input[type='text'],
+  input[type='email'],
+  select,
+  .theme-segment {
+    background: rgba(248, 250, 252, .9);
+    border-color: rgba(203, 213, 225, .95);
+    color: #0f172a;
+  }
+
+  .theme-segment button,
+  .hero-copy,
+  .muted,
+  .session-card p,
+  .profile-chip span {
+    color: #64748b;
+  }
+
+  .theme-segment .active {
+    color: #fff;
+  }
+}
+
+@media (max-width: 900px) {
+  .settings-hero,
+  .session-card {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .settings-grid,
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-panel,
+  .security-panel,
+  .wide {
+    grid-column: span 1;
+  }
+}

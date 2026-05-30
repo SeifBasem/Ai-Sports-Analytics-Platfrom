@@ -1,0 +1,110 @@
+<div class="settings-page">
+  <section class="settings-hero">
+    <div>
+      <p class="eyebrow">Account Preferences</p>
+      <h2>Settings</h2>
+      <p class="hero-copy">Manage your profile, appearance, and start page saved to your account.</p>
+    </div>
+
+    <div class="profile-chip">
+      <div class="avatar">{{ initials }}</div>
+      <div>
+        <strong>{{ settings.fullName }}</strong>
+        <span>{{ currentUser?.role || 'User' }}</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="settings-grid">
+    <section class="settings-panel profile-panel">
+      <div class="panel-header">
+        <div>
+          <p class="eyebrow">Profile</p>
+          <h3>Account Details</h3>
+        </div>
+      </div>
+
+      <div class="error-banner" *ngIf="error">{{ error }}</div>
+
+      <div class="form-grid">
+        <label>
+          Full Name
+          <input type="text" [(ngModel)]="settings.fullName" [disabled]="loading || saving" />
+        </label>
+
+        <label>
+          Username
+          <input type="text" [(ngModel)]="settings.username" disabled />
+        </label>
+
+        <label class="wide">
+          Email Address
+          <input type="email" [(ngModel)]="settings.email" [disabled]="loading || saving" />
+        </label>
+      </div>
+    </section>
+
+    <section class="settings-panel compact-panel">
+      <div class="panel-header">
+        <div>
+          <p class="eyebrow">Theme</p>
+          <h3>Appearance</h3>
+        </div>
+      </div>
+
+      <div class="theme-segment">
+        <button type="button" [class.active]="currentTheme === 'light'" (click)="setTheme('light')">
+          Light
+        </button>
+        <button type="button" [class.active]="currentTheme === 'dark'" (click)="setTheme('dark')">
+          Dark
+        </button>
+      </div>
+
+      <p class="muted">Theme preview updates immediately and saves with your account settings.</p>
+    </section>
+
+    <section class="settings-panel">
+      <div class="panel-header">
+        <div>
+          <p class="eyebrow">Workspace</p>
+          <h3>Navigation</h3>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <label class="wide">
+          Start Page
+          <select [(ngModel)]="settings.startPage" [disabled]="loading || saving">
+            <option *ngFor="let option of startPageOptions" [value]="option.value">{{ option.label }}</option>
+          </select>
+        </label>
+      </div>
+    </section>
+
+    <section class="settings-panel security-panel">
+      <div class="panel-header">
+        <div>
+          <p class="eyebrow">Session</p>
+          <h3>Account Session</h3>
+        </div>
+      </div>
+      <div class="session-card">
+        <div>
+          <strong>Current session</strong>
+          <p>Signed in as {{ settings.username }}.</p>
+        </div>
+        <button type="button" class="min-h-11 rounded-xl border border-gray-700/70 bg-gray-800/60 px-5 font-bold text-red-300" (click)="logout()">Logout</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="settings-actions">
+    <span *ngIf="saved" class="mr-auto text-sm font-bold text-green-400">Settings saved.</span>
+    <span *ngIf="!saved && updatedAt" class="mr-auto text-sm font-bold text-gray-400">Last updated {{ updatedAt | date:'medium' }}</span>
+    <button type="button" class="min-h-11 rounded-xl border border-gray-700/70 bg-gray-800/60 px-5 font-bold text-gray-300" (click)="resetSettings()" [disabled]="loading || saving">Reload</button>
+    <button type="button" class="min-h-11 rounded-xl bg-gradient-to-r from-blue-500 to-green-500 px-5 font-bold text-white" (click)="saveSettings()" [disabled]="loading || saving">
+      {{ saving ? 'Saving...' : 'Save Changes' }}
+    </button>
+  </div>
+</div>

@@ -1,0 +1,218 @@
+<div class="upload-page">
+  <div class="page-header">
+    <div>
+      <span class="page-eyebrow">Tracking tools</span>
+      <h1>Players Tracking</h1>
+    </div>
+    <span class="api-badge" [class.ok]="apiStatus === 'ok'" [class.down]="apiStatus === 'down'">
+      API {{ apiStatus === 'ok' ? 'Online' : apiStatus === 'down' ? 'Offline' : 'Checking...' }}
+    </span>
+  </div>
+
+  <div class="history-control">
+    <div>
+      <label for="trackingHistory">Show stats from previous process</label>
+      <p>Choose a saved player tracking run to reload passes and positioning stats.</p>
+    </div>
+    <select
+      id="trackingHistory"
+      [ngModel]="selectedHistoryJobId"
+      (ngModelChange)="onHistorySelect($event)"
+      [disabled]="loadingHistory || loading"
+    >
+      <option value="">Current / latest tracking process</option>
+      <option *ngFor="let job of historyJobs" [value]="job.id">{{ jobLabel(job) }}</option>
+    </select>
+  </div>
+
+  <div class="history-selected" *ngIf="selectedHistoryJobId && selectedHistoryTitle">
+    Showing saved stats for {{ selectedHistoryTitle }}
+  </div>
+
+  <ng-container *ngIf="!hasCompletedResult">
+    <div
+      class="drop-zone"
+      [class.has-preview]="previewUrl"
+      (click)="triggerFileInput(fileInput)"
+      (dragover)="onDragOver($event)"
+      (drop)="onDrop($event)"
+    >
+      <input #fileInput type="file" accept="video/*" hidden (change)="onFileSelected($event)" />
+
+      <ng-container *ngIf="!previewUrl">
+        <div class="drop-icon">
+          <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="m15.75 10.5 4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z"
+            />
+          </svg>
+        </div>
+        <p class="drop-title">Drop video clips here</p>
+        <p class="drop-sub">or click to browse &middot; MP4, AVI, MOV</p>
+      </ng-container>
+
+      <ng-container *ngIf="previewUrl">
+        <video [src]="previewUrl" controls class="preview-img"></video>
+        <button class="reset-btn" type="button" (click)="$event.stopPropagation(); reset()">Clear</button>
+      </ng-container>
+    </div>
+  </ng-container>
+
+  <div class="error-msg" *ngIf="error">{{ error }}</div>
+
+  <div class="project-field" *ngIf="!hasCompletedResult">
+    <label for="trackingProjectName">Project name</label>
+    <input
+      id="trackingProjectName"
+      type="text"
+      [(ngModel)]="projectName"
+      placeholder="Example: Matchday 12 vs City"
+      [disabled]="loading"
+    />
+  </div>
+
+  <div class="progress-card" *ngIf="loading">
+    <div class="progress-header">
+      <div>
+        <p class="progress-title">{{ processingMsg || 'Processing video...' }}</p>
+        <p class="progress-sub" *ngIf="currentStage === 'processing_frames' && totalFrames > 0">
+          {{ processedFrames }} / {{ totalFrames }} frames analyzed
+        </p>
+        <p class="progress-sub" *ngIf="currentStage === 'encoding'">
+          Creating the final playable result video.
+        </p>
+      </div>
+      <span class="progress-value">{{ progress }}%</span>
+    </div>
+
+    <div class="progress-track">
+      <div class="progress-fill" [style.width.%]="progress"></div>
+    </div>
+  </div>
+
+  <button class="detect-btn" *ngIf="!hasCompletedResult" [disabled]="!selectedFile || loading" (click)="detect()">
+    <span *ngIf="!loading">Process Video</span>
+    <span *ngIf="loading" class="spinner">{{ processingMsg || 'Uploading...' }}</span>
+  </button>
+
+  <div class="results" *ngIf="annotatedVideoUrl || hasDerivedStats">
+    <div class="results-header">
+      <div>
+        <h2>Process Complete</h2>
+        <p>Your processed result is ready below.</p>
+      </div>
+      <button class="run-another-btn" type="button" (click)="runAnotherVideo()">Run another video</button>
+    </div>
+    <video *ngIf="annotatedVideoUrl" [src]="annotatedVideoUrl" controls class="result-img" autoplay></video>
+    <div class="stats-note" *ngIf="!annotatedVideoUrl && hasDerivedStats">
+      Saved statistics are available for this process. The processed video can only be replayed while the AI service still has that job file available.
+    </div>
+
+    <div class="tracking-stats" *ngIf="hasDerivedStats">
+      <div class="tracking-stats-header">
+        <h3>Tracking Stats</h3>
+      </div>
+
+      <div class="stats-table-section pass-total-section">
+        <h4>Total Passes Per Team</h4>
+        <div class="pass-cards" *ngIf="passStatsRows.length">
+          <div class="team-pass-card" *ngFor="let team of passStatsRows">
+            <div class="team-card-title">{{ teamLabel(team.team_id) }}</div>
+
+            <div class="main-pass-metric">
+              <span>{{ formatCount(team.total_passes) }}</span>
+              <small>Total passes</small>
+            </div>
+
+            <div class="metric-grid">
+              <div>
+                <span>{{ formatCount(team.successful_passes) }}</span>
+                <small>Successful</small>
+              </div>
+              <div>
+                <span>{{ formatPercent(team.completion_pct) }}</span>
+                <small>Completion</small>
+              </div>
+              <div>
+                <span>{{ formatCount(team.crosses) }}</span>
+                <small>Crosses</small>
+              </div>
+              <div>
+                <span>{{ formatMeters(team.avg_distance_m) }}</span>
+                <small>Avg distance</small>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="stats-note" *ngIf="showMissingPassTotals">
+          No pass totals or pass predictions were found for this saved run.
+        </div>
+      </div>
+
+      <div class="stats-table-section" *ngIf="teamPositionRows.length">
+        <h4>Team Positioning</h4>
+        <div class="stats-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Team</th>
+                <th>Avg X</th>
+                <th>Avg Y</th>
+                <th>Width</th>
+                <th>Depth</th>
+                <th>Compactness</th>
+                <th>Visible</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let team of teamPositionRows">
+                <td>{{ teamLabel(team.team_id) }}</td>
+                <td>{{ formatMeters(team.avg_x) }}</td>
+                <td>{{ formatMeters(team.avg_y) }}</td>
+                <td>{{ formatMeters(team.avg_width_m) }}</td>
+                <td>{{ formatMeters(team.avg_depth_m) }}</td>
+                <td>{{ formatMeters(team.avg_compactness_m) }}</td>
+                <td>{{ team.avg_players_visible ?? '-' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="stats-table-section" *ngIf="playerPositionRows.length">
+        <h4>Player Positioning</h4>
+        <div class="stats-table-wrap player-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Player</th>
+                <th>Team</th>
+                <th>Avg X</th>
+                <th>Avg Y</th>
+                <th>X Range</th>
+                <th>Y Range</th>
+                <th>Samples</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let player of playerPositionRows">
+                <td>
+                  #{{ player.tracker_id }}
+                  <span class="role-pill" *ngIf="player.is_goalkeeper">GK</span>
+                </td>
+                <td>{{ teamLabel(player.team_id) }}</td>
+                <td>{{ formatMeters(player.avg_x) }}</td>
+                <td>{{ formatMeters(player.avg_y) }}</td>
+                <td>{{ formatMeters(player.min_x) }} - {{ formatMeters(player.max_x) }}</td>
+                <td>{{ formatMeters(player.min_y) }} - {{ formatMeters(player.max_y) }}</td>
+                <td>{{ formatCount(player.samples) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

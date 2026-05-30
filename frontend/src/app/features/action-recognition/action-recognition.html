@@ -1,0 +1,161 @@
+<div class="action-recognition-page">
+  <!-- ── Header ─────────────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div>
+      <span class="page-eyebrow">AI Detection</span>
+      <h1>Player Action Detection</h1>
+      <p class="header-subtitle">Detect player actions and prepare review-ready performance signals</p>
+    </div>
+    <span class="api-badge" [class.ok]="apiStatus==='ok'" [class.down]="apiStatus==='down'">
+      <span class="pulse-dot" [class.online]="apiStatus==='ok'" [class.offline]="apiStatus==='down'"></span>
+      {{ apiStatus === 'ok' ? 'AI Engine Online' : apiStatus === 'down' ? 'AI Engine Offline' : 'Checking…' }}
+    </span>
+  </div>
+
+  <!-- ── Upload Area ────────────────────────────────────────────────────── -->
+  <div class="upload-section" *ngIf="!loading && !showResults">
+    <div class="upload-box"
+         (click)="fileInput.click()"
+         (dragover)="onDragOver($event)"
+         (drop)="onDrop($event)">
+
+      <input #fileInput type="file" accept="video/*" multiple hidden (change)="onFileSelected($event)" />
+
+      <div class="upload-icon-container">
+        <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="m15.75 10.5 4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z" />
+        </svg>
+      </div>
+      <p class="upload-title">Drop video clips here</p>
+      <p class="upload-hint">or click to browse · MP4, AVI, MOV · Select multiple files</p>
+    </div>
+
+    <!-- ── Video Queue ─────────────────────────────────────────────────── -->
+    <div class="session-panel">
+      <label for="playerName">Player name for this session</label>
+      <input
+        id="playerName"
+        type="text"
+        [(ngModel)]="playerName"
+        maxlength="80"
+        placeholder="Example: Mohamed Salah"
+      />
+      <span>{{ sessionTitle }}</span>
+    </div>
+
+    <div class="video-queue" *ngIf="videos.length">
+      <div class="queue-header">
+        <h3>Video Queue <span class="queue-count">{{ videos.length }} video{{ videos.length > 1 ? 's' : '' }}</span></h3>
+        <button class="add-more-btn" (click)="$event.stopPropagation(); fileInput.click()">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" class="btn-icon-sm">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+          Add More
+        </button>
+      </div>
+
+      <div class="queue-list">
+        <div class="queue-item" *ngFor="let video of videos; let i = index">
+          <div class="queue-thumb">
+            <video [src]="video.previewUrl" muted></video>
+          </div>
+          <div class="queue-info">
+            <span class="queue-file-name">{{ video.file.name }}</span>
+            <span class="queue-file-size">{{ formatFileSize(video.file.size) }} MB</span>
+          </div>
+          <button class="queue-remove-btn" (click)="removeVideo(i)" title="Remove">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="queue-actions">
+        <button class="recognize-btn" [disabled]="loading" (click)="recognizeAll()">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" class="btn-icon">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" />
+          </svg>
+          Recognize All ({{ videos.length }})
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Processing Progress ────────────────────────────────────────────── -->
+  <div class="processing-section" *ngIf="loading">
+    <div class="processing-card">
+      <div class="processing-visual">
+        <div class="brain-animation">
+          <div class="brain-ring ring-1"></div>
+          <div class="brain-ring ring-2"></div>
+          <div class="brain-ring ring-3"></div>
+          <svg class="brain-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" />
+          </svg>
+        </div>
+      </div>
+
+      <h2 class="processing-title">Analyzing Actions</h2>
+      <p class="processing-subtitle">Video {{ currentVideoIndex + 1 }} of {{ videos.length }}</p>
+
+      <!-- Overall progress -->
+      <div class="progress-bar-wrap">
+        <div class="progress-bar">
+          <div class="progress-fill" [style.width.%]="overallProgress">
+            <div class="progress-glow"></div>
+          </div>
+        </div>
+        <span class="progress-pct">{{ overallProgress }}%</span>
+      </div>
+
+      <!-- Per-video status list -->
+      <div class="video-status-list">
+        <div *ngFor="let video of videos; let i = index"
+             class="video-status-item"
+             [class.active]="i === currentVideoIndex"
+             [class.done]="video.status === 'done'"
+             [class.errored]="video.status === 'error'">
+          <div class="status-indicator">
+            <svg *ngIf="video.status === 'done'" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+            </svg>
+            <svg *ngIf="video.status === 'error'" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            <div *ngIf="video.status === 'processing' || video.status === 'uploading'" class="mini-spinner"></div>
+            <span *ngIf="video.status === 'pending'" class="pending-dot"></span>
+          </div>
+          <span class="status-filename">{{ video.file.name }}</span>
+          <span class="status-label">
+            <ng-container *ngIf="video.status === 'done'">Done</ng-container>
+            <ng-container *ngIf="video.status === 'error'">Failed</ng-container>
+            <ng-container *ngIf="video.status === 'processing' || video.status === 'uploading'">{{ getStageLabel(video) }}</ng-container>
+            <ng-container *ngIf="video.status === 'pending'">Queued</ng-container>
+          </span>
+        </div>
+      </div>
+
+      <p class="processing-hint">Processing {{ videos.length }} video{{ videos.length > 1 ? 's' : '' }} sequentially</p>
+    </div>
+  </div>
+
+  <!-- ── Error ──────────────────────────────────────────────────────────── -->
+  <div class="error-card" *ngIf="error">
+    <div class="error-icon-wrap">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+      </svg>
+    </div>
+    <div>
+      <h3>Recognition Failed</h3>
+      <p>{{ error }}</p>
+    </div>
+    <button class="retry-btn" (click)="resetAll()">Try Again</button>
+  </div>
+
+</div>

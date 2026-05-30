@@ -1,0 +1,144 @@
+<div class="analytics-page">
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <span class="page-eyebrow">Match Analytics</span>
+      <h1 class="page-title">Match Event Analytics</h1>
+      <p class="page-subtitle">Event totals from match event spotting</p>
+    </div>
+    <div class="status-badge" [class.active]="hasData">
+      <div class="pulse-dot"></div>
+      <span>{{ hasData ? 'Data Available' : 'No Data' }}</span>
+    </div>
+  </div>
+
+  <div class="history-control">
+    <div>
+      <label for="actionHistory">Show stats from previous process</label>
+      <p>Select a completed match event spotting run to reload its saved database stats.</p>
+    </div>
+    <select
+      id="actionHistory"
+      [ngModel]="selectedHistoryJobId"
+      (ngModelChange)="onHistorySelect($event)"
+      [disabled]="loadingHistory"
+    >
+      <option value="">Latest saved match event stats</option>
+      <option *ngFor="let job of historyJobs" [value]="job.id">{{ jobLabel(job) }}</option>
+    </select>
+  </div>
+
+  <div class="history-selected" *ngIf="selectedHistoryJobId && selectedHistoryTitle">
+    Showing saved stats for {{ selectedHistoryTitle }}
+  </div>
+
+  <!-- No Data State -->
+  <div class="empty-state" *ngIf="!hasData">
+    <div class="empty-icon">📊</div>
+    <h3>No Match Data Available</h3>
+    <p>Process a video in the <strong>Match Event Spotting</strong> tab to generate event statistics.</p>
+    <p class="empty-hint">The AI model will detect: Throw In, Out, High Pass, and Header events.</p>
+  </div>
+
+  <!-- Stats Content -->
+  <ng-container *ngIf="hasData">
+
+    <!-- Scoreboard Card (no goals - just team names) -->
+    <div class="match-scoreboard">
+      <div class="scoreboard-inner">
+        <!-- Team 1 -->
+        <div class="team-block">
+          <div class="team-logo team-1-gradient">T1</div>
+          <div class="team-name">Team 1</div>
+          <div class="team-total">{{ getTotalHome() }} events</div>
+        </div>
+
+        <!-- VS Divider -->
+        <div class="vs-divider">
+          <span class="vs-text">VS</span>
+        </div>
+
+        <!-- Team 2 -->
+        <div class="team-block">
+          <div class="team-logo team-2-gradient">T2</div>
+          <div class="team-name">Team 2</div>
+          <div class="team-total">{{ getTotalAway() }} events</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Match Overview (SofaScore style) -->
+    <div class="overview-card">
+
+      <!-- Section Header -->
+      <div class="section-header">
+        <div class="section-accent"></div>
+        <h3>Match Event Overview</h3>
+      </div>
+
+      <!-- Team Labels -->
+      <div class="team-labels">
+        <span class="team-label team-1-color">Team 1</span>
+        <span class="team-label team-2-color">Team 2</span>
+      </div>
+
+      <!-- Stats List -->
+      <div class="stats-list">
+        <div *ngFor="let stat of stats" class="stat-row">
+
+          <!-- Values & Label Row -->
+          <div class="stat-values">
+            <!-- Home Value -->
+            <span
+              class="stat-value left"
+              [class.dominant]="getDominantTeam(stat) === 'home'">
+              {{ stat.homeValue }}
+            </span>
+
+            <!-- Stat Label -->
+            <span class="stat-label">{{ stat.label }}</span>
+
+            <!-- Away Value -->
+            <span
+              class="stat-value right"
+              [class.dominant]="getDominantTeam(stat) === 'away'">
+              {{ stat.awayValue }}
+            </span>
+          </div>
+
+          <!-- Dual Progress Bar -->
+          <div class="bar-container">
+            <!-- Home Bar -->
+            <div class="bar-half left">
+              <div class="bar-bg">
+                <div
+                  class="bar-fill home"
+                  [style.width.%]="getHomePercent(stat)">
+                </div>
+              </div>
+            </div>
+            <!-- Divider -->
+            <div class="bar-divider"></div>
+            <!-- Away Bar -->
+            <div class="bar-half right">
+              <div class="bar-bg">
+                <div
+                  class="bar-fill away"
+                  [style.width.%]="getAwayPercent(stat)">
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Clear Data -->
+    <div class="clear-section">
+      <button class="clear-btn" (click)="clearStats()">Clear Stats Data</button>
+    </div>
+
+  </ng-container>
+</div>

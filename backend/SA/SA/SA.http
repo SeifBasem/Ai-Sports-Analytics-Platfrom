@@ -1,0 +1,6 @@
+@SA_HostAddress = http://localhost:5067
+
+GET {{SA_HostAddress}}/swagger/index.html
+Accept: text/html
+
+###

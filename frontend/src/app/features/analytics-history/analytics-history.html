@@ -1,0 +1,48 @@
+<div class="history-page">
+  <div class="page-header">
+    <div>
+      <span class="page-eyebrow">History</span>
+      <h1>Analysis History</h1>
+      <p>Saved processing results from the database.</p>
+    </div>
+    <button type="button" class="refresh-btn" (click)="loadHistory()" [disabled]="loading">
+      {{ loading ? 'Loading...' : 'Refresh' }}
+    </button>
+  </div>
+
+  <div class="toolbar">
+    <div>
+      <label for="historyType">Filter by analytics type</label>
+      <select id="historyType" [(ngModel)]="selectedType" (ngModelChange)="applyFilter()">
+        <option *ngFor="let option of typeOptions" [value]="option.value">{{ option.label }}</option>
+      </select>
+    </div>
+    <span>{{ filteredItems.length }} saved process{{ filteredItems.length === 1 ? '' : 'es' }}</span>
+  </div>
+
+  <div class="error-banner" *ngIf="error">{{ error }}</div>
+
+  <div class="empty-state" *ngIf="!loading && !error && filteredItems.length === 0">
+    <h3>No saved analytics yet</h3>
+    <p>Process a video first, then completed runs will appear here.</p>
+  </div>
+
+  <div class="history-list" *ngIf="filteredItems.length">
+    <article class="history-card" *ngFor="let item of filteredItems">
+      <div class="card-main">
+        <div class="type-pill">{{ typeLabel(item.jobType) }}</div>
+        <h2>{{ item.title }}</h2>
+        <p>{{ itemMetricLabel(item) }}</p>
+      </div>
+
+      <div class="card-meta">
+        <span>Completed {{ formatDate(item.completedAt || item.updatedAt) }}</span>
+        <span>{{ item.id.substring(0, 8) }}</span>
+      </div>
+
+      <button type="button" class="open-btn" (click)="openItem(item)">
+        Open analytics
+      </button>
+    </article>
+  </div>
+</div>

@@ -1,0 +1,53 @@
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Dependencies
+node_modules/
+frontend/node_modules/
+
+# Frontend build/cache
+frontend/dist/
+frontend/.angular/
+dist/
+
+# Backend build/cache
+**/bin/
+**/obj/
+**/.vs/
+*.csproj.user
+*.lscache
+*.suo
+*.vsidx
+*.dtbcache*
+**/__pycache__/
+*.py[cod]
+
+# Runtime outputs and logs
+backend/Ai/outputs/
+*.log
+frontend/*server*.log
+frontend/ng-serve*.log
+
+# Uploaded/processed media
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.webm
+
+# Large local model artifacts. Use Git LFS or external storage for these.
+*.pt
+*.pth
+*.onnx
+*.keras
+*.h5
+
+# Local/editor files
+.restore-points/
+docx_render_check/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

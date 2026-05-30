@@ -1,0 +1,111 @@
+<div class="heatmap-page">
+  <div class="hm-header">
+    <div>
+      <span class="hm-eyebrow">Tracking tools</span>
+      <h1>Heatmap Analysis</h1>
+    </div>
+    <button class="refresh-btn" (click)="loadJobs()" [disabled]="loadingJobs">
+      <span *ngIf="!loadingJobs">Refresh Jobs</span>
+      <span *ngIf="loadingJobs">Loading...</span>
+    </button>
+  </div>
+
+  <div class="error-banner" *ngIf="error">{{ error }}</div>
+
+  <div class="controls-card">
+    <div class="card-heading">
+      <div class="card-title-mark"></div>
+      <div>
+        <h2>Match Source</h2>
+        <p>Choose a completed tracking run, then generate player or team movement maps.</p>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <label class="ctrl-label">Select Processed Match</label>
+      <select class="ctrl-select" (change)="onJobSelect($any($event.target).value)">
+        <option value="">-- Choose a completed job --</option>
+        <option *ngFor="let job of jobs" [value]="job.job_id">
+          {{ jobLabel(job) }}
+        </option>
+      </select>
+      <p class="hint" *ngIf="!loadingJobs && jobs.length === 0">
+        No completed jobs found. Process a video first in the Detection page.
+      </p>
+    </div>
+
+    <div class="control-group" *ngIf="selectedJobId">
+      <label class="ctrl-label">Heatmap Type</label>
+      <div class="toggle-group">
+        <button class="toggle-btn" [class.active]="mode === 'player'" (click)="mode = 'player'">
+          Player
+        </button>
+        <button class="toggle-btn" [class.active]="mode === 'team'" (click)="mode = 'team'">
+          Team
+        </button>
+      </div>
+    </div>
+
+    <div class="control-group" *ngIf="selectedJobId && mode === 'player'">
+      <label class="ctrl-label">Player ID (Tracker)</label>
+      <select class="ctrl-select" [(ngModel)]="selectedPlayerId">
+        <option *ngFor="let pid of playerIds" [value]="pid">#{{ pid }}</option>
+      </select>
+
+      <div class="stat-badge" *ngIf="statForSelected as selectedStat">
+        <span class="badge">Team {{ selectedStat.team_id === 0 ? 'A' : 'B' }}</span>
+        <span class="badge">{{ selectedStat.distance_km.toFixed(2) }} km covered</span>
+        <span class="badge">{{ selectedStat.frame_count }} frames tracked</span>
+      </div>
+    </div>
+
+    <div class="control-group" *ngIf="selectedJobId && mode === 'team'">
+      <label class="ctrl-label">Team</label>
+      <div class="toggle-group">
+        <button class="toggle-btn team-a" [class.active]="selectedTeamId === 0" (click)="selectedTeamId = 0">
+          Team A
+        </button>
+        <button class="toggle-btn team-b" [class.active]="selectedTeamId === 1" (click)="selectedTeamId = 1">
+          Team B
+        </button>
+      </div>
+    </div>
+
+    <div class="selected-job-card" *ngIf="selectedJob as job">
+      <span class="selected-kicker">Selected project</span>
+      <strong>{{ selectedJobTitle }}</strong>
+      <small>{{ job.job_id.substring(0, 8) }} · {{ job.total_frames || job.processed_frames || 0 }} frames</small>
+    </div>
+
+    <button class="generate-btn" *ngIf="selectedJobId" [disabled]="loading" (click)="generateHeatmap()">
+      <span *ngIf="!loading">Generate Heatmap</span>
+      <span *ngIf="loading" class="spinner">Generating...</span>
+    </button>
+  </div>
+
+  <div class="heatmap-display" *ngIf="heatmapUrl || loading">
+    <div class="heatmap-title">
+      <span *ngIf="mode === 'player'">{{ selectedJobTitle }} - Player #{{ selectedPlayerId }} Heatmap</span>
+      <span *ngIf="mode === 'team'">{{ selectedJobTitle }} - {{ teamLabel }} Heatmap</span>
+    </div>
+
+    <div class="heatmap-frame">
+      <div class="hm-spinner" *ngIf="loading">
+        <div class="pulse-ring"></div>
+        <p>Generating heatmap...</p>
+      </div>
+      <img
+        *ngIf="heatmapUrl"
+        [src]="heatmapUrl"
+        alt="Heatmap"
+        class="heatmap-img"
+        (load)="onHeatmapLoad()"
+        (error)="onHeatmapError()"
+      />
+    </div>
+
+    <a class="download-btn" *ngIf="heatmapUrl && !loading" [href]="heatmapUrl" download="heatmap.png">
+      Download PNG
+    </a>
+  </div>
+</div>

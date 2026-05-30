@@ -1,0 +1,48 @@
+<div class="overflow-hidden rounded-2xl border border-gray-800/50 bg-gray-900/50 shadow-sm backdrop-blur-xl">
+  <div class="overflow-x-auto">
+    <table class="min-w-full divide-y divide-gray-800/70 text-left">
+      <thead class="bg-gray-800/30">
+        <tr>
+          <th *ngFor="let column of columns; trackBy: trackByIndex" scope="col" class="whitespace-nowrap px-4 py-3 text-xs font-semibold uppercase text-gray-400">
+            {{ column.label }}
+          </th>
+          <th *ngIf="actions.length > 0" scope="col" class="whitespace-nowrap px-4 py-3 text-right text-xs font-semibold uppercase text-gray-400">
+            Actions
+          </th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-800/60">
+        <tr *ngFor="let row of rows; trackBy: trackByIndex" class="transition-colors hover:bg-gray-800/35">
+          <td *ngFor="let column of columns; trackBy: trackByIndex" class="px-4 py-4 align-top text-sm text-gray-300">
+            <app-status-badge *ngIf="column.type === 'status'; else textCell" [status]="getCellText(row, column.key)"></app-status-badge>
+            <ng-template #textCell>
+              <span [class]="column.type === 'longText' ? 'block max-w-md leading-6 text-gray-400' : 'whitespace-nowrap'">
+                {{ getCellText(row, column.key) }}
+              </span>
+            </ng-template>
+          </td>
+          <td *ngIf="actions.length > 0" class="px-4 py-4 text-right align-top">
+            <div class="flex flex-wrap justify-end gap-2">
+              <button
+                *ngFor="let action of actions; trackBy: trackByIndex"
+                type="button"
+                [hidden]="!isActionVisible(action, row)"
+                [title]="action.label"
+                [class]="'inline-flex min-h-9 items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-semibold transition-colors ' + actionClasses(action.variant)"
+                (click)="selectAction(action.id, row)"
+              >
+                <lucide-icon [name]="action.icon" size="15" strokeWidth="2"></lucide-icon>
+                <span>{{ action.label }}</span>
+              </button>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="rows.length === 0">
+          <td [attr.colspan]="columns.length + (actions.length > 0 ? 1 : 0)" class="px-4 py-10 text-center text-sm text-gray-400">
+            {{ emptyMessage }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

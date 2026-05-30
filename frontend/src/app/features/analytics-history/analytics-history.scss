@@ -1,0 +1,263 @@
+.history-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem;
+  color: #e2e8f0;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+
+  h1 {
+    margin: 0.15rem 0 0.25rem;
+    font-size: 1.8rem;
+    font-weight: 800;
+  }
+
+  p {
+    margin: 0;
+    color: #94a3b8;
+  }
+}
+
+.page-eyebrow {
+  display: block;
+  color: #38bdf8;
+  font-size: 0.7rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.refresh-btn,
+.open-btn {
+  border: 1px solid rgba(59, 130, 246, 0.45);
+  border-radius: 0.75rem;
+  background: linear-gradient(135deg, #3b82f6, #10b981);
+  color: #ffffff;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 12px 24px rgba(16, 185, 129, 0.18);
+  transition: filter 0.2s, transform 0.1s, box-shadow 0.2s;
+
+  &:hover:not(:disabled) {
+    filter: brightness(1.06);
+    box-shadow: 0 14px 28px rgba(59, 130, 246, 0.22);
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+}
+
+.refresh-btn {
+  padding: 0.55rem 0.95rem;
+}
+
+.toolbar {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid rgba(51, 65, 85, 0.72);
+  border-radius: 1rem;
+  background: rgba(15, 23, 42, 0.58);
+
+  label {
+    display: block;
+    margin-bottom: 0.35rem;
+    color: #93c5fd;
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  select {
+    min-width: 260px;
+    min-height: 42px;
+    border-radius: 0.75rem;
+    border: 1px solid #334155;
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 0 0.85rem;
+    outline: none;
+  }
+
+  span {
+    color: #94a3b8;
+    font-size: 0.88rem;
+  }
+}
+
+.error-banner,
+.empty-state {
+  border-radius: 1rem;
+  padding: 1rem 1.1rem;
+}
+
+.error-banner {
+  color: #fecaca;
+  border: 1px solid rgba(248, 113, 113, 0.45);
+  background: rgba(239, 68, 68, 0.12);
+}
+
+.empty-state {
+  text-align: center;
+  border: 1px dashed rgba(148, 163, 184, 0.35);
+  background: rgba(15, 23, 42, 0.45);
+
+  h3 {
+    margin: 0 0 0.35rem;
+  }
+
+  p {
+    margin: 0;
+    color: #94a3b8;
+  }
+}
+
+.history-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.history-card {
+  display: grid;
+  gap: 1rem;
+  padding: 1.1rem;
+  border: 1px solid rgba(51, 65, 85, 0.75);
+  border-radius: 1rem;
+  background: rgba(15, 23, 42, 0.62);
+}
+
+.type-pill {
+  display: inline-flex;
+  width: fit-content;
+  padding: 0.22rem 0.6rem;
+  margin-bottom: 0.7rem;
+  border-radius: 999px;
+  background: rgba(59, 130, 246, 0.15);
+  color: #93c5fd;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.card-main {
+  h2 {
+    margin: 0 0 0.4rem;
+    color: #f8fafc;
+    font-size: 1.05rem;
+    font-weight: 800;
+  }
+
+  p {
+    margin: 0;
+    color: #94a3b8;
+    font-size: 0.86rem;
+  }
+}
+
+.card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  color: #64748b;
+  font-size: 0.78rem;
+}
+
+.open-btn {
+  min-height: 40px;
+}
+
+@media (max-width: 720px) {
+  .page-header,
+  .toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .toolbar select {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+:host-context(.light-theme) {
+  .history-page {
+    color: #0f172a;
+  }
+
+  .page-eyebrow {
+    color: #0369a1;
+  }
+
+  .page-header h1 {
+    color: #0f172a;
+  }
+
+  .page-header p,
+  .toolbar span,
+  .empty-state p,
+  .card-main p,
+  .card-meta {
+    color: #475569;
+  }
+
+  .toolbar,
+  .history-card,
+  .empty-state {
+    background: #ffffff;
+    border-color: #cbd5e1;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+  }
+
+  .toolbar label {
+    color: #2563eb;
+  }
+
+  .toolbar select {
+    background: #ffffff;
+    color: #0f172a;
+    border-color: #cbd5e1;
+  }
+
+  .card-main h2 {
+    color: #0f172a;
+  }
+
+  .type-pill {
+    background: #dbeafe;
+    color: #2563eb;
+  }
+
+  .refresh-btn,
+  .open-btn {
+    background: linear-gradient(135deg, #3b82f6, #10b981);
+    border-color: transparent;
+    color: #ffffff;
+    box-shadow: 0 12px 24px rgba(16, 185, 129, 0.18);
+
+    &:hover:not(:disabled) {
+      filter: brightness(1.06);
+      box-shadow: 0 14px 28px rgba(59, 130, 246, 0.22);
+    }
+
+    &:disabled {
+      filter: grayscale(0.15);
+      opacity: 0.62;
+    }
+  }
+}

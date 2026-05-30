@@ -1,0 +1,81 @@
+<div class="space-y-6">
+  <div *ngIf="notice" class="flex items-center justify-between gap-3 rounded-xl border border-cyan-500/30 bg-cyan-500/10 px-4 py-3 text-sm font-medium text-cyan-300">
+    <span>{{ notice }}</span>
+    <button type="button" class="rounded-md p-1 hover:bg-cyan-500/20" title="Dismiss" (click)="closeNotice()">
+      <lucide-icon name="x" size="16" strokeWidth="2"></lucide-icon>
+    </button>
+  </div>
+
+  <section class="rounded-2xl border border-gray-800/50 bg-gray-900/50 p-6 shadow-sm backdrop-blur-xl">
+    <div class="mb-5 flex items-center justify-between gap-3">
+      <div>
+        <span class="block text-[0.7rem] font-extrabold uppercase tracking-widest text-sky-400 mb-1">Library</span>
+        <h1 class="text-[1.8rem] font-extrabold text-white">Upload video</h1>
+      </div>
+      <span class="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-sky-500/10 text-sky-400">
+        <lucide-icon name="upload" size="21" strokeWidth="2"></lucide-icon>
+      </span>
+    </div>
+
+    <form class="grid grid-cols-1 gap-4 lg:grid-cols-3" (ngSubmit)="submitUpload()">
+      <label class="block">
+        <span class="text-sm font-semibold text-gray-300">Title</span>
+        <input type="text" name="title" [(ngModel)]="uploadForm.title" class="mt-2 w-full rounded-xl border border-gray-700 bg-gray-800/70 px-3 py-2 text-sm text-white outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" required />
+      </label>
+
+      <label class="block">
+        <span class="text-sm font-semibold text-gray-300">Uploaded By</span>
+        <input type="text" name="uploadedBy" [(ngModel)]="uploadForm.uploadedBy" class="mt-2 w-full rounded-xl border border-gray-700 bg-gray-800/70 px-3 py-2 text-sm text-white outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" required />
+      </label>
+
+      <label class="block">
+        <span class="text-sm font-semibold text-gray-300">Video File</span>
+        <input type="file" name="videoFile" accept="video/*" class="mt-2 w-full rounded-xl border border-gray-700 bg-gray-800/70 px-3 py-2 text-sm text-gray-300 file:mr-3 file:rounded-lg file:border-0 file:bg-gradient-to-r file:from-blue-500 file:to-green-500 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-white" (change)="onFileSelected($event)" />
+      </label>
+
+      <label class="block lg:col-span-3">
+        <span class="text-sm font-semibold text-gray-300">Description</span>
+        <textarea name="description" rows="3" [(ngModel)]="uploadForm.description" class="mt-2 w-full resize-none rounded-xl border border-gray-700 bg-gray-800/70 px-3 py-2 text-sm text-white outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20" required></textarea>
+      </label>
+
+      <div class="flex flex-col gap-3 lg:col-span-3 sm:flex-row sm:items-center sm:justify-between">
+        <p class="text-sm font-medium text-gray-400">{{ selectedFileName || 'No file selected' }}</p>
+        <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-green-500 px-4 py-2 text-sm font-semibold text-white hover:from-blue-600 hover:to-green-600">
+          <lucide-icon name="plus" size="16" strokeWidth="2"></lucide-icon>
+          Add Video
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <app-data-table
+    [columns]="columns"
+    [rows]="rows"
+    [actions]="actions"
+    emptyMessage="No videos found."
+    (actionSelected)="handleAction($event)"
+  ></app-data-table>
+</div>
+
+<app-modal [isOpen]="selectedVideo !== null" title="Video details" size="lg" (closed)="selectedVideo = null">
+  <div *ngIf="selectedVideo as video" class="space-y-5">
+    <div class="flex flex-wrap items-center gap-2">
+      <app-status-badge [status]="video.status"></app-status-badge>
+      <span class="text-sm font-semibold text-gray-400">{{ video.id }}</span>
+    </div>
+    <div>
+      <h3 class="text-xl font-semibold text-white">{{ video.title }}</h3>
+      <p class="mt-2 leading-7 text-gray-300">{{ video.description }}</p>
+    </div>
+    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <div class="rounded-xl border border-gray-800/70 bg-gray-800/35 p-3">
+        <p class="text-xs font-semibold uppercase text-gray-400">Uploaded By</p>
+        <p class="mt-1 font-semibold text-white">{{ video.uploadedBy }}</p>
+      </div>
+      <div class="rounded-xl border border-gray-800/70 bg-gray-800/35 p-3">
+        <p class="text-xs font-semibold uppercase text-gray-400">Upload Date</p>
+        <p class="mt-1 font-semibold text-white">{{ video.uploadDate }}</p>
+      </div>
+    </div>
+  </div>
+</app-modal>
