@@ -1,6 +1,6 @@
 # Goalithm
 
-Football intelligence dashboard for player tracking, movement heatmaps, match event spotting, player action detection, review, and analysis history.
+Football intelligence dashboard for player tracking, movement heatmaps, match event spotting, player action detection, review, and analysis history
 
 ## Project Structure
 
